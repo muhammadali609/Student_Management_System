@@ -57,11 +57,29 @@ function renderLogin() {
     `;
 }
 
-function handleLogin(e) {
+async function handleLogin(e) {
     e.preventDefault();
-    // Later we will connect this to ASP.NET API. For Chunk 1 mock it.
-    AppState.user = { name: 'Muhammad Ali', role: 'Student' };
-    initApp();
+    const email = document.getElementById('emailInput').value;
+    const password = document.getElementById('passInput').value;
+    
+    try {
+        const response = await fetch(`${AppState.apiUrl}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            AppState.user = data;
+            initApp();
+        } else {
+            const err = await response.json();
+            alert(err.message || 'Login failed');
+        }
+    } catch (error) {
+        alert('Server unreachable. Please ensure Backend API is running.');
+    }
 }
 
 function logout() {
