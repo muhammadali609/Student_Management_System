@@ -91,15 +91,50 @@ function renderDashboard() {
     const content = document.getElementById('app-content');
     content.innerHTML = `
         <div class="fade-in">
-            <h2>Dashboard</h2>
-            <p class="text-muted">Welcome back, ${AppState.user.name}! Role: ${AppState.user.role}</p>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>🎓 Student Project Management Dashboard</h2>
+                <span class="badge bg-primary fs-6">${AppState.user.role}</span>
+            </div>
+            
+            <p class="text-muted">Welcome back, <strong>${AppState.user.name}</strong>! Here is an overview of your academic project activity.</p>
+            
             <div class="row mt-4">
-                <div class="col-md-4">
-                    <div class="card p-4 text-center bg-white">
-                        <h4>Pending Tasks</h4>
-                        <h1 class="text-primary mt-2">0</h1>
+                <div class="col-md-4 mb-4">
+                    <div class="card p-4 text-center h-100 border-primary border-top border-4">
+                        <h5 class="text-muted">Pending Tasks</h5>
+                        <h1 class="text-primary mt-3 mb-0">3</h1>
                     </div>
                 </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card p-4 text-center h-100 border-success border-top border-4">
+                        <h5 class="text-muted">Completed Milestones</h5>
+                        <h1 class="text-success mt-3 mb-0">5</h1>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="card p-4 text-center h-100 border-warning border-top border-4">
+                        <h5 class="text-muted">Weekly Reports Submitted</h5>
+                        <h1 class="text-warning mt-3 mb-0">2</h1>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card p-4 mt-2">
+                <h4>Recent Activity</h4>
+                <ul class="list-group list-group-flush mt-3">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Task "Design UI Mockup" marked as Completed
+                        <span class="badge bg-success rounded-pill">Done</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Supervisor approved project proposal
+                        <span class="badge bg-primary rounded-pill">Approved</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        System automatically generated weekly progress report
+                        <span class="badge bg-secondary rounded-pill">System</span>
+                    </li>
+                </ul>
             </div>
         </div>
     `;
