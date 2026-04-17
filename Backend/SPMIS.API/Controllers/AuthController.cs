@@ -31,6 +31,20 @@ namespace SPMIS.API.Controllers
                 token = "mock-jwt-token-12345" 
             });
         }
+
+        [HttpPost("register")]
+        public IActionResult Register([FromBody] User user)
+        {
+            if (_context.Users.Any(u => u.Email == user.Email))
+                return BadRequest(new { message = "Email already exists" });
+
+            // Assign standard role if not provided
+            if (string.IsNullOrEmpty(user.Role)) user.Role = "Student";
+
+            _context.Users.Add(user);
+            _context.SaveChanges();
+            return Ok(new { message = "Registration successful", id = user.Id });
+        }
     }
 
     public class LoginRequest
