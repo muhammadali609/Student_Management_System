@@ -1,11 +1,10 @@
 // App State 
 const AppState = {
-    user: null, // e.g. { name: 'Ali', role: 'Student' }
+    user: null, 
     token: null,
-    apiUrl: 'http://localhost:5000/api' // Default API URL
+    apiUrl: 'http://localhost:5000/api'
 };
 
-// Router placeholder
 document.addEventListener('DOMContentLoaded', () => {
     initApp();
 });
@@ -28,6 +27,9 @@ function renderNav() {
     } else {
         nav.innerHTML = `
             <li class="nav-item"><a class="nav-link" href="#" onclick="renderDashboard()">Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="renderProjects()">Projects</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="renderTasks()">Tasks</a></li>
+            <li class="nav-item"><a class="nav-link" href="#" onclick="renderReports()">Weekly Reports</a></li>
             <li class="nav-item"><a class="nav-link text-danger" href="#" onclick="logout()">Logout (${AppState.user.name})</a></li>
         `;
     }
@@ -43,7 +45,7 @@ function renderLogin() {
                     <form onsubmit="handleLogin(event)">
                         <div class="mb-3">
                             <label class="form-label">Email address</label>
-                            <input type="email" class="form-control" id="emailInput" required value="student@university.edu">
+                            <input type="email" class="form-control" id="emailInput" required value="student@spmis.edu">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Password</label>
@@ -96,7 +98,7 @@ function renderDashboard() {
                 <span class="badge bg-primary fs-6">${AppState.user.role}</span>
             </div>
             
-            <p class="text-muted">Welcome back, <strong>${AppState.user.name}</strong>! Here is an overview of your academic project activity.</p>
+            <p class="text-muted">Welcome back, <strong>${AppState.user.name}</strong>! Navigate using the top menu to access your features.</p>
             
             <div class="row mt-4">
                 <div class="col-md-4 mb-4">
@@ -118,23 +120,86 @@ function renderDashboard() {
                     </div>
                 </div>
             </div>
+        </div>
+    `;
+}
 
-            <div class="card p-4 mt-2">
-                <h4>Recent Activity</h4>
-                <ul class="list-group list-group-flush mt-3">
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Task "Design UI Mockup" marked as Completed
-                        <span class="badge bg-success rounded-pill">Done</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Supervisor approved project proposal
-                        <span class="badge bg-primary rounded-pill">Approved</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        System automatically generated weekly progress report
-                        <span class="badge bg-secondary rounded-pill">System</span>
-                    </li>
-                </ul>
+function renderProjects() {
+    const content = document.getElementById('app-content');
+    content.innerHTML = `
+        <div class="fade-in">
+            <h2>📝 Project Proposal Submission</h2>
+            <div class="card p-4 mt-3">
+                <form onsubmit="event.preventDefault(); alert('Proposal Submitted Successfully!'); renderDashboard();">
+                    <div class="mb-3">
+                        <label class="form-label">Project Title</label>
+                        <input type="text" class="form-control" required placeholder="Enter project title">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Project Abstract</label>
+                        <textarea class="form-control" rows="4" required placeholder="Describe your project..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Add Group Members (Comma separated IDs)</label>
+                        <input type="text" class="form-control" placeholder="E.g. Student1, Student2">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Proposal</button>
+                </form>
+            </div>
+        </div>
+    `;
+}
+
+function renderTasks() {
+    const content = document.getElementById('app-content');
+    content.innerHTML = `
+        <div class="fade-in">
+            <div class="d-flex justify-content-between">
+                <h2>📋 Task Board</h2>
+                <button class="btn btn-success" onclick="alert('Task Modal Opened')">+ New Task</button>
+            </div>
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="card bg-light p-3">
+                        <h5 class="text-muted">To Do</h5>
+                        <div class="card mt-2 p-2 shadow-sm">Design Database Schema</div>
+                        <div class="card mt-2 p-2 shadow-sm">Write Backend API</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-light p-3">
+                        <h5 class="text-muted">In Progress</h5>
+                        <div class="card mt-2 p-2 shadow-sm border-primary border-start border-4">Integrate Frontend logic</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-light p-3">
+                        <h5 class="text-muted">Done</h5>
+                        <div class="card mt-2 p-2 shadow-sm border-success border-start border-4">System Requirements Specification</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function renderReports() {
+    const content = document.getElementById('app-content');
+    content.innerHTML = `
+        <div class="fade-in">
+            <h2>📅 Weekly Reporting</h2>
+            <div class="card p-4 mt-3">
+                <form onsubmit="event.preventDefault(); alert('Weekly Report Submitted!'); renderDashboard();">
+                    <div class="mb-3">
+                        <label class="form-label">Week Number</label>
+                        <input type="number" class="form-control" required value="13">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Progress Summary</label>
+                        <textarea class="form-control" rows="4" required placeholder="What did you implement this week?"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-warning">Submit Report to Supervisor</button>
+                </form>
             </div>
         </div>
     `;
