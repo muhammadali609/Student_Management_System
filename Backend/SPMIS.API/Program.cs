@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using SPMIS.API.Data;
+using SPMIS.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,8 @@ builder.Services.AddOpenApi();
 // SQLite
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=spmis.db"));
+builder.Services.AddScoped<WorkflowService>();
+builder.Services.AddSingleton<NotificationService>();
 
 var app = builder.Build();
 
