@@ -14,12 +14,14 @@ namespace SPMIS.API.Controllers
         private readonly AppDbContext _context;
         private readonly WorkflowService _workflow;
         private readonly NotificationService _notifications;
+        private readonly ActivityLogService _logs;
 
-        public ProjectsController(AppDbContext context, WorkflowService workflow, NotificationService notifications)
+        public ProjectsController(AppDbContext context, WorkflowService workflow, NotificationService notifications, ActivityLogService logs)
         {
             _context = context;
             _workflow = workflow;
             _notifications = notifications;
+            _logs = logs;
         }
 
         [HttpGet]
@@ -58,6 +60,8 @@ namespace SPMIS.API.Controllers
             };
             _context.Projects.Add(project);
             _context.SaveChanges();
+            _logs.LogActivity(project.Id, "Project created/registered.");
+
             return Created($"/api/projects/{project.Id}", project);
         }
 
@@ -80,6 +84,8 @@ namespace SPMIS.API.Controllers
             project.Status = ProjectStates.ProposalSubmitted;
             _notifications.NotifyRole("Supervisor", $"New proposal submitted: {project.Title}");
             _context.SaveChanges();
+            _logs.LogActivity(project.Id, "Proposal submitted.");
+
             return Ok(project);
         }
 
@@ -99,6 +105,8 @@ namespace SPMIS.API.Controllers
                 ? $"Proposal approved: {project.Title}. Tasks are now available."
                 : $"Proposal rejected: {project.Title}. Please revise and resubmit.");
             _context.SaveChanges();
+            _logs.LogActivity(project.Id, $"Proposal {(request.Approve ? "approved" : "rejected")}.");
+
             return Ok(project);
         }
 
@@ -117,11 +125,13 @@ namespace SPMIS.API.Controllers
             project.Status = ProjectStates.UnderReview;
             _notifications.NotifyRole("Supervisor", $"Final submission uploaded: {project.Title}");
             _context.SaveChanges();
+            _logs.LogActivity(project.Id, "Final submission uploaded.");
+
             return Ok(project);
         }
 
         [HttpPost("{id}/complete")]
-        public IActionResult MarkCompleted(int id)
+        public IActionResult MarkCompleted(int id, [FromBody] EvaluationRequest request)
         {
             var project = _context.Projects.Find(id);
             if (project == null) return NotFound(new { message = "Project not found." });
@@ -132,8 +142,11 @@ namespace SPMIS.API.Controllers
             }
 
             project.Status = ProjectStates.Completed;
+            project.EvaluationScore = request.Score;
+            project.EvaluationComments = request.Comments;
             _notifications.NotifyRole("Admin", $"Project completed and ready for archive: {project.Title}");
             _context.SaveChanges();
+            _logs.LogActivity(project.Id, $"Project completed with score: {request.Score}.");
             return Ok(project);
         }
 
@@ -150,7 +163,62 @@ namespace SPMIS.API.Controllers
 
             project.Status = ProjectStates.Archived;
             _context.SaveChanges();
+            _logs.LogActivity(project.Id, "Project archived.");
             return Ok(project);
+        }
+
+        [HttpPost("{id}/assign-supervisor")]
+        public IActionResult AssignSupervisor(int id, [FromBody] int supervisorId)
+        {
+            var project = _context.Projects.Find(id);
+            if (project == null) return NotFound(new { message = "Project not found." });
+
+            project.SupervisorId = supervisorId;
+            _context.SaveChanges();
+            _logs.LogActivity(project.Id, $"Supervisor ID {supervisorId} assigned.");
+            return Ok(project);
+        }
+
+        [HttpGet("{id}/report")]
+        public IActionResult GenerateReport(int id)
+        {
+            var project = _context.Projects.Find(id);
+            if (project == null) return NotFound(new { message = "Project not found." });
+
+            var tasks = _context.Tasks.Where(t => t.ProjectId == id).ToList();
+            var reports = _context.Reports.Where(r => r.ProjectId == id).ToList();
+            var milestones = _context.Milestones.Where(m => m.ProjectId == id).ToList();
+
+            var summary = new
+            {
+                Project = project,
+                TasksTotal = tasks.Count,
+                TasksCompleted = tasks.Count(t => t.Status == "Done"),
+                WeeklyReports = reports,
+                Milestones = milestones,
+                GeneratedAt = DateTime.UtcNow
+            };
+
+            _logs.LogActivity(project.Id, "Report generated.");
+            return Ok(summary);
+        }
+
+        [HttpGet("analytics")]
+        public IActionResult GetAnalytics()
+        {
+            var projects = _context.Projects.ToList();
+            var tasks = _context.Tasks.ToList();
+
+            var stats = new
+            {
+                TotalProjects = projects.Count,
+                ActiveProjects = projects.Count(p => p.Status == ProjectStates.InProgress || p.Status == ProjectStates.Approved),
+                CompletedProjects = projects.Count(p => p.Status == ProjectStates.Completed),
+                TotalTasks = tasks.Count,
+                CompletedTasks = tasks.Count(t => t.Status == "Done")
+            };
+
+            return Ok(stats);
         }
     }
 }

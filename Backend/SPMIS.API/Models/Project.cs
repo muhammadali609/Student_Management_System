@@ -12,5 +12,7 @@ namespace SPMIS.API.Models
         public string StudentIds { get; set; } // Comma separated for simplicity
         public int? SupervisorId { get; set; }
         public string Status { get; set; } // "Pending", "Approved", "Rejected", "Completed"
+        public int? EvaluationScore { get; set; }
+        public string EvaluationComments { get; set; }
     }
 }

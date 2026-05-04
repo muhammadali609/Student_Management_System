@@ -14,12 +14,14 @@ namespace SPMIS.API.Controllers
         private readonly AppDbContext _context;
         private readonly WorkflowService _workflow;
         private readonly NotificationService _notifications;
+        private readonly ActivityLogService _logs;
 
-        public ReportsController(AppDbContext context, WorkflowService workflow, NotificationService notifications)
+        public ReportsController(AppDbContext context, WorkflowService workflow, NotificationService notifications, ActivityLogService logs)
         {
             _context = context;
             _workflow = workflow;
             _notifications = notifications;
+            _logs = logs;
         }
 
         [HttpGet("{projectId}")]
@@ -55,6 +57,7 @@ namespace SPMIS.API.Controllers
             _context.Reports.Add(report);
             _notifications.NotifyRole("Supervisor", $"Weekly report submitted for project: {project.Title}");
             _context.SaveChanges();
+            _logs.LogActivity(request.ProjectId, $"Weekly report submitted for week {request.WeekNumber}.");
             return Created($"/api/reports/{report.Id}", report);
         }
 
@@ -72,6 +75,7 @@ namespace SPMIS.API.Controllers
             report.SupervisorFeedback = request.Feedback.Trim();
             _notifications.NotifyRole("Student", $"New supervisor feedback added for week {report.WeekNumber}.");
             _context.SaveChanges();
+            _logs.LogActivity(report.ProjectId, $"Supervisor feedback added for week {report.WeekNumber}.");
             return Ok(report);
         }
     }

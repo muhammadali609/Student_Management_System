@@ -11,6 +11,9 @@ namespace SPMIS.API.Data
         public DbSet<Project> Projects { get; set; }
         public DbSet<ProjectTask> Tasks { get; set; }
         public DbSet<WeeklyReport> Reports { get; set; }
+        public DbSet<Milestone> Milestones { get; set; }
+        public DbSet<ProjectDocument> ProjectDocuments { get; set; }
+        public DbSet<ActivityLog> ActivityLogs { get; set; }
         
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

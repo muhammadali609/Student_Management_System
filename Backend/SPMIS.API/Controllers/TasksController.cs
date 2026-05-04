@@ -14,12 +14,14 @@ namespace SPMIS.API.Controllers
         private readonly AppDbContext _context;
         private readonly WorkflowService _workflow;
         private readonly NotificationService _notifications;
+        private readonly ActivityLogService _logs;
 
-        public TasksController(AppDbContext context, WorkflowService workflow, NotificationService notifications)
+        public TasksController(AppDbContext context, WorkflowService workflow, NotificationService notifications, ActivityLogService logs)
         {
             _context = context;
             _workflow = workflow;
             _notifications = notifications;
+            _logs = logs;
         }
 
         [HttpGet("{projectId}")]
@@ -60,6 +62,7 @@ namespace SPMIS.API.Controllers
             }
             _notifications.NotifyRole("Student", $"New task assigned in project: {project.Title}");
             _context.SaveChanges();
+            _logs.LogActivity(project.Id, $"Task created: {task.Title}");
             return Created($"/api/tasks/{task.Id}", task);
         }
 
@@ -81,6 +84,7 @@ namespace SPMIS.API.Controllers
                 _notifications.NotifyRole("Supervisor", $"Task completed: {task.Title}");
             }
             _context.SaveChanges();
+            _logs.LogActivity(task.ProjectId, $"Task status updated to {request.Status}: {task.Title}");
             return Ok(task);
         }
     }

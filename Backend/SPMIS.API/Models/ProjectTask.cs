@@ -12,5 +12,6 @@ namespace SPMIS.API.Models
         public string Description { get; set; }
         public string Status { get; set; } // "To Do", "In Progress", "Done"
         public string AssignedTo { get; set; }
+        public DateTime? DueDate { get; set; }
     }
 }

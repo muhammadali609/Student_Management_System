@@ -23,6 +23,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=spmis.db"));
 builder.Services.AddScoped<WorkflowService>();
+builder.Services.AddScoped<ActivityLogService>();
 builder.Services.AddSingleton<NotificationService>();
 
 var app = builder.Build();
@@ -35,6 +36,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseCors();
+app.UseStaticFiles();
 
 if (app.Environment.IsDevelopment())
 {
